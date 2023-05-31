@@ -20,9 +20,6 @@ export class AuthController {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
-
-  // ...
-
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 200, description: 'Redirects to orders page' })
   @Post('login')
