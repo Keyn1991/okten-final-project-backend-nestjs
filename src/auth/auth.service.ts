@@ -1,26 +1,70 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+
+import { UserService } from '../users/user.service';
+import { CreateUserDto } from '../users/dto/user.dto';
+import { User } from '../../mongo/schema/user.schema';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async validateUser(username: string, password: string): Promise<User> {
+    const user = await this.userService.findByEmail(username);
+    if (user && bcrypt.compareSync(password, user.password)) {
+      return user;
+    }
+    return null;
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async validateUserById(userId: string): Promise<User> {
+    return await this.userService.findById(userId);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ access_token: string }> {
+    const user = await this.validateUser(email, password);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    const payload = { sub: user.id };
+    const access_token = this.jwtService.sign(payload);
+    return { access_token };
   }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+  async register(
+    name: string,
+    surname: string,
+    email: string,
+    password: string,
+    role: string,
+  ): Promise<User> {
+    const existingUser = await this.userService.findByEmail(email);
+    if (existingUser) {
+      throw new BadRequestException('User with this email already exists');
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(password, salt);
+
+    const createUserDto: CreateUserDto = {
+      name,
+      surname,
+      email,
+      password: hashedPassword,
+      role,
+    };
+    const createdUser = await this.userService.create(createUserDto);
+    return createdUser;
   }
 }

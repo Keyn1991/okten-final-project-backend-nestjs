@@ -1,34 +1,58 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { Controller, Get, Param } from '@nestjs/common';
 
+import { OrderService } from './orders.service';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { Order } from '../../mongo/schema/order.schema';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+
+@ApiTags('Orders')
 @Controller('orders')
-export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+export class OrderController {
+  constructor(private readonly orderService: OrderService) {}
 
-  @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
-  }
-
+  @ApiOperation({ summary: 'Get orders' })
+  @ApiParam({ name: 'page', type: Number })
+  @ApiResponse({ status: 200, description: 'Returns the list of orders' })
   @Get()
-  findAll() {
-    return this.ordersService.findAll();
+  findFirstPage(): Promise<Order[]> {
+    const paginationQuery: PaginationQueryDto = {
+      limit: 25,
+      page: 1,
+    };
+    return this.orderService.findAll(paginationQuery);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(+id);
+  @ApiOperation({ summary: 'Get orders by page' })
+  @ApiParam({ name: 'page', type: Number })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        limit: {
+          type: 'number',
+          default: 25,
+        },
+        page: {
+          type: 'number',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Returns the list of orders' })
+  @Get(':page')
+  findAll(@Param('page') page: number): Promise<Order[]> {
+    const paginationQuery: PaginationQueryDto = {
+      limit: 25,
+      page,
+    };
+    return this.orderService.findAll(paginationQuery);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(+id, updateOrderDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
-  }
+  // ...
 }
