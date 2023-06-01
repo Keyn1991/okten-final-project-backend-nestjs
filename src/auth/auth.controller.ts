@@ -11,6 +11,9 @@ import { UserService } from '../users/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto';
+import { AccessTokenDto } from './dto/AccessTokenDto';
 
 @ApiTags('Authentication')
 @Controller('')
@@ -20,14 +23,12 @@ export class AuthController {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
+
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 200, description: 'Redirects to orders page' })
   @Post('login')
-  async login(
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Res() res: Response,
-  ): Promise<void> {
+  async login(@Body() loginDto: LoginDto, @Res() res: Response): Promise<void> {
+    const { email, password } = loginDto;
     const user = await this.authService.login(email, password);
     if (!user) {
       throw new UnauthorizedException('Неправильний email або пароль');
@@ -38,13 +39,8 @@ export class AuthController {
   @ApiOperation({ summary: 'User registration' })
   @ApiResponse({ status: 201, description: 'Returns the access token' })
   @Post('register')
-  async register(
-    @Body('name') name: string,
-    @Body('surname') surname: string,
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Body('role') role: string,
-  ): Promise<{ access_token: string }> {
+  async register(@Body() registerDto: RegisterDto): Promise<AccessTokenDto> {
+    const { name, surname, email, password, role } = registerDto;
     const existingUser = await this.userService.findByEmail(email);
     if (existingUser) {
       throw new UnauthorizedException('Користувач з таким email вже існує');
