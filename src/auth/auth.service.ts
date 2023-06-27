@@ -3,7 +3,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-
 import { UserService } from '../users/user.service';
 import { CreateUserDto } from '../users/dto/user.dto';
 import { User } from '../../mongo/schema/user.schema';
@@ -48,7 +47,7 @@ export class AuthService {
     email: string,
     password: string,
     role: string,
-  ): Promise<User> {
+  ): Promise<{ access_token: string }> {
     const existingUser = await this.userService.findByEmail(email);
     if (existingUser) {
       throw new BadRequestException('User with this email already exists');
@@ -65,6 +64,10 @@ export class AuthService {
       role,
     };
     const createdUser = await this.userService.create(createUserDto);
-    return createdUser;
+
+    const payload = { sub: createdUser.id };
+    const access_token = this.jwtService.sign(payload);
+
+    return { access_token };
   }
 }

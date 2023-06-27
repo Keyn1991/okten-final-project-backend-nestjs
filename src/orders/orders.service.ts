@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Order, OrderDocument } from '../../mongo/schema/order.schema';
@@ -11,9 +10,25 @@ export class OrderService {
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
   ) {}
 
-  async findAll(paginationQuery: PaginationQueryDto): Promise<Order[]> {
-    const { limit, page } = paginationQuery;
+  async findAll(
+    paginationQuery: PaginationQueryDto,
+  ): Promise<{ orders: Order[]; totalOrders: number }> {
+    const { limit = 25, page = 1, sort } = paginationQuery;
     const offset = (page - 1) * limit;
-    return this.orderModel.find().skip(offset).limit(limit).exec();
+
+    const query = this.orderModel.find().skip(offset).limit(limit);
+
+    if (sort === 'asc') {
+      query.sort({ surname: 1 });
+    } else if (sort === 'desc') {
+      query.sort({ surname: -1 });
+    }
+
+    const [orders, totalOrders] = await Promise.all([
+      query.exec(),
+      this.orderModel.countDocuments().exec(),
+    ]);
+
+    return { orders, totalOrders };
   }
 }

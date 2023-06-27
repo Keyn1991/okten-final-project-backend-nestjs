@@ -1,14 +1,13 @@
-import { Controller, Get, Param } from '@nestjs/common';
-
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { OrderService } from './orders.service';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { Order } from '../../mongo/schema/order.schema';
 import {
   ApiBody,
   ApiOperation,
-  ApiParam,
   ApiResponse,
   ApiTags,
+  ApiQuery,
 } from '@nestjs/swagger';
 
 @ApiTags('Orders')
@@ -17,40 +16,69 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @ApiOperation({ summary: 'Get orders' })
-  @ApiParam({ name: 'page', type: Number })
+  @ApiQuery({
+    name: 'limit',
+    schema: { default: 25, minimum: 1 },
+    required: false,
+  })
+  @ApiQuery({ name: 'page', schema: { type: 'number' }, required: false })
+  @ApiQuery({
+    name: 'sort',
+    enum: ['asc', 'desc'],
+    required: false,
+  })
   @ApiResponse({ status: 200, description: 'Returns the list of orders' })
   @Get()
-  findFirstPage(): Promise<Order[]> {
-    const paginationQuery: PaginationQueryDto = {
-      limit: 25,
-      page: 1,
+  async findAll(
+    @Query() paginationQuery: PaginationQueryDto,
+    @Query('sort') sort?: 'asc' | 'desc', // Update the type of 'sort'
+  ): Promise<{
+    orders: Order[];
+    totalOrders: number;
+    totalPages: number;
+  }> {
+    const { limit = 25, page = 1 } = paginationQuery;
+    const query: PaginationQueryDto & { sort?: 'asc' | 'desc' } = {
+      // Update the type of 'query'
+      ...paginationQuery,
+      sort: sort === 'asc' || sort === 'desc' ? sort : undefined,
     };
-    return this.orderService.findAll(paginationQuery);
+    const { orders, totalOrders } = await this.orderService.findAll(query);
+    const totalPages = Math.ceil(totalOrders / limit);
+    return { orders, totalOrders, totalPages };
   }
 
   @ApiOperation({ summary: 'Get orders by page' })
-  @ApiParam({ name: 'page', type: Number })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        limit: {
-          type: 'number',
-          default: 25,
-        },
-        page: {
-          type: 'number',
-        },
-      },
-    },
+  @ApiQuery({
+    name: 'limit',
+    schema: { default: 25, minimum: 1 },
+    required: false,
+  })
+  @ApiQuery({
+    name: 'sort',
+    enum: ['asc', 'desc'],
+    required: false,
   })
   @ApiResponse({ status: 200, description: 'Returns the list of orders' })
   @Get(':page')
-  findAll(@Param('page') page: number): Promise<Order[]> {
-    const paginationQuery: PaginationQueryDto = {
-      limit: 25,
-      page,
+  async findAllByPage(
+    @Param('page') page: number,
+    @Query() paginationQuery: PaginationQueryDto,
+    @Query('sort') sort?: 'asc' | 'desc', // Update the type of 'sort'
+  ): Promise<{
+    orders: Order[];
+    totalOrders: number;
+    totalPages: number;
+  }> {
+    paginationQuery.page = page;
+    const { limit = 25 } = paginationQuery;
+    const query: PaginationQueryDto & { sort?: 'asc' | 'desc' } = {
+      // Update the type of 'query'
+      ...paginationQuery,
+      sort: sort === 'asc' || sort === 'desc' ? sort : undefined,
     };
-    return this.orderService.findAll(paginationQuery);
+    const { orders, totalOrders } = await this.orderService.findAll(query);
+    const totalPages = Math.ceil(totalOrders / limit);
+    return { orders, totalOrders, totalPages };
   }
 }

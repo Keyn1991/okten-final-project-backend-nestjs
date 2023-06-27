@@ -25,41 +25,41 @@ export class AuthController {
   ) {}
 
   @ApiOperation({ summary: 'User login' })
-  @ApiResponse({ status: 200, description: 'Redirects to orders page' })
+  @ApiResponse({ status: 200, description: 'Returns the authentication token' })
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Res() res: Response): Promise<void> {
     const { email, password } = loginDto;
-    const user = await this.authService.login(email, password);
-    if (!user) {
-      throw new UnauthorizedException('Неправильний email або пароль');
+    const { access_token } = await this.authService.login(email, password);
+    if (!access_token) {
+      throw new UnauthorizedException('Invalid credentials');
     }
-    res.redirect('/orders');
+    res.send({ access_token });
   }
 
-  @ApiOperation({ summary: 'User registration' })
-  @ApiResponse({ status: 201, description: 'Returns the access token' })
-  @Post('register')
-  async register(@Body() registerDto: RegisterDto): Promise<AccessTokenDto> {
-    const { name, surname, email, password, role } = registerDto;
-    const existingUser = await this.userService.findByEmail(email);
-    if (existingUser) {
-      throw new UnauthorizedException('Користувач з таким email вже існує');
-    }
-
-    const createdUser = await this.authService.register(
-      name,
-      surname,
-      email,
-      password,
-      role,
-    );
-
-    if (!createdUser) {
-      throw new UnauthorizedException('Помилка при реєстрації');
-    }
-
-    const payload = { sub: createdUser.id };
-    const access_token = this.jwtService.sign(payload);
-    return { access_token };
-  }
+  // @ApiOperation({ summary: 'User registration' })
+  // @ApiResponse({ status: 201, description: 'Returns the access token' })
+  // @Post('register')
+  // async register(@Body() registerDto: RegisterDto): Promise<AccessTokenDto> {
+  //   const { name, surname, email, password, role } = registerDto;
+  //   const existingUser = await this.userService.findByEmail(email);
+  //   if (existingUser) {
+  //     throw new UnauthorizedException('Користувач з таким email вже існує');
+  //   }
+  //
+  //   const createdUser = await this.authService.register(
+  //     name,
+  //     surname,
+  //     email,
+  //     password,
+  //     role,
+  //   );
+  //
+  //   if (!createdUser) {
+  //     throw new UnauthorizedException('Помилка при реєстрації');
+  //   }
+  //
+  //   const payload = { sub: createdUser.id };
+  //   const access_token = this.jwtService.sign(payload);
+  //   return { access_token };
+  // }
 }

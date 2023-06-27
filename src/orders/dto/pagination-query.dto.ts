@@ -1,5 +1,7 @@
 import { IsInt, IsNumber, IsOptional, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Order } from '../../../mongo/schema/order.schema';
+import { Prop } from '@nestjs/mongoose';
 
 export class PaginationQueryDto {
   @ApiProperty({
@@ -10,15 +12,18 @@ export class PaginationQueryDto {
   @IsOptional()
   @IsNumber()
   @Min(1)
-  limit = 25;
+  limit: number;
+
+  surname: string;
 
   @ApiProperty({
     required: false,
     type: Number,
   })
   @IsOptional()
-  @IsNumber()
   page: number;
+
+  sort?: 'asc' | 'desc';
 
   @ApiProperty({
     required: false,
@@ -29,4 +34,9 @@ export class PaginationQueryDto {
   @IsNumber()
   @Min(0)
   offset?: number;
+}
+export class PaginatedOrdersDto {
+  orders: Order[];
+  totalOrders: number;
+  totalPages: number;
 }
