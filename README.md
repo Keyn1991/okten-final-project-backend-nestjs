@@ -74,38 +74,41 @@ $ npm run start:prod
 Get all orders
 Retrieves a list of all orders.
 
-Method: GET
-URL: http://localhost:5000/orders
-Query Parameters:
-limit (optional): The number of orders per page (default: 25)
-page (optional): The page number (default: 1)
-sort (optional): The sorting order of the orders (asc or desc)
-Response:
-Status: 200 OK
-Body:
-{
-"orders": [
-{
-"id": "1",
-"name": "Order 1"
-},
-{
-"id": "2",
-"name": "Order 2"
-}
-],
-"totalOrders": 2
-}
-Method: GET
-URL: http://localhost:5000/orders/:page
-Parameters:
-page: The page number
-Query Parameters:
-limit (optional): The number of orders per page (default: 25)
-sort (optional): The sorting order of the orders (asc or desc)
-Response:
-Status: 200 OK
-Body:
+## Method: GET
+- URL: http://localhost:5000/orders
+- Query Parameters:
+- limit (optional): The number of orders per page (default: 25)
+- page (optional): The page number (default: 1)
+- sort (optional): The sorting order of the orders (asc or desc)
+- Response:
+- Status: 200 OK
+- Body:
+  ```json
+    {
+    "orders": [
+    {
+    "id": "1",
+    "name": "Order 1"
+    },
+    {
+    "id": "2",
+    "name": "Order 2"
+    }
+    ],
+    "totalOrders": 2
+    }
+
+## Method: GET
+- URL: http://localhost:5000/orders?page=1
+- Parameters:
+- page: The page number
+- Query Parameters:
+- limit (optional): The number of orders per page (default: 25)
+- sort (optional): The sorting order of the orders (asc or desc)
+- Response:
+- Status: 200 OK
+- Body:
+```json
 {
 "orders": [
 {
