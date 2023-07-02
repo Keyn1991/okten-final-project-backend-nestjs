@@ -54,5 +54,69 @@ $ npm run start:prod
 
 [Download Postman Collection](./my-api-collection.json)
 
+**Login**
+- Method: POST
+- URL: http://localhost:5000/login
+- Headers:
+    - Content-Type: application/json
+- Body:
+  ```json
+  {
+    "email": "admin@gmail.com",
+    "password": "admin"
+  }
+{
+"access_token": "your_access_token"
+}
 
+**Orders**
+
+Get all orders
+Retrieves a list of all orders.
+
+Method: GET
+URL: http://localhost:5000/orders
+Query Parameters:
+limit (optional): The number of orders per page (default: 25)
+page (optional): The page number (default: 1)
+sort (optional): The sorting order of the orders (asc or desc)
+Response:
+Status: 200 OK
+Body:
+{
+"orders": [
+{
+"id": "1",
+"name": "Order 1"
+},
+{
+"id": "2",
+"name": "Order 2"
+}
+],
+"totalOrders": 2
+}
+Method: GET
+URL: http://localhost:5000/orders/:page
+Parameters:
+page: The page number
+Query Parameters:
+limit (optional): The number of orders per page (default: 25)
+sort (optional): The sorting order of the orders (asc or desc)
+Response:
+Status: 200 OK
+Body:
+{
+"orders": [
+{
+"id": "1",
+"name": "Order 1"
+},
+{
+"id": "2",
+"name": "Order 2"
+}
+],
+"totalOrders": 2
+}
 
