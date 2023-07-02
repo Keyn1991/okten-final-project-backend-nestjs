@@ -39,7 +39,6 @@ export class OrderController {
   }> {
     const { limit = 25, page = 1 } = paginationQuery;
     const query: PaginationQueryDto & { sort?: 'asc' | 'desc' } = {
-      // Update the type of 'query'
       ...paginationQuery,
       sort: sort === 'asc' || sort === 'desc' ? sort : undefined,
     };
@@ -64,7 +63,7 @@ export class OrderController {
   async findAllByPage(
     @Param('page') page: number,
     @Query() paginationQuery: PaginationQueryDto,
-    @Query('sort') sort?: 'asc' | 'desc', // Update the type of 'sort'
+    @Query('sort') sort?: 'asc' | 'desc',
   ): Promise<{
     orders: Order[];
     totalOrders: number;
@@ -73,7 +72,6 @@ export class OrderController {
     paginationQuery.page = page;
     const { limit = 25 } = paginationQuery;
     const query: PaginationQueryDto & { sort?: 'asc' | 'desc' } = {
-      // Update the type of 'query'
       ...paginationQuery,
       sort: sort === 'asc' || sort === 'desc' ? sort : undefined,
     };
