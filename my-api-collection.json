@@ -1,0 +1,114 @@
+{
+  "info": {
+    "name": "My Project API",
+    "description": "Collection of API endpoints for My Project",
+    "_postman_id": "your-collection-id",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"admin\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "login"
+          ]
+        },
+        "description": "Log in to the application"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Orders",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/orders",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "orders"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "25",
+              "description": "Number of orders per page",
+              "disabled": true
+            },
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number",
+              "disabled": true
+            },
+            {
+              "key": "sort",
+              "value": "asc",
+              "description": "Sort order (asc or desc)",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Get orders"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Orders by Page",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/orders/:page",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "orders",
+            ":page"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "25",
+              "description": "Number of orders per page",
+              "disabled": true
+            },
+            {
+              "key": "sort",
+              "value": "asc",
+              "description": "Sort order (asc or desc)",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Get orders by page"
+      },
+      "response": []
+    }
+  ]
+}
