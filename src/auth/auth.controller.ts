@@ -29,11 +29,14 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Res() res: Response): Promise<void> {
     const { email, password } = loginDto;
-    const { access_token } = await this.authService.login(email, password);
+    const { access_token, refresh_token } = await this.authService.login(
+      email,
+      password,
+    );
     if (!access_token) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    res.send({ access_token });
+    res.send({ access_token, refresh_token });
   }
 
   // @ApiOperation({ summary: 'User registration' })

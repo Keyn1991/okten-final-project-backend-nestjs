@@ -31,14 +31,15 @@ export class AuthService {
   async login(
     email: string,
     password: string,
-  ): Promise<{ access_token: string }> {
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.validateUser(email, password);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
     const payload = { sub: user.id };
-    const access_token = this.jwtService.sign(payload);
-    return { access_token };
+    const access_token = this.jwtService.sign(payload, { expiresIn: '10m' });
+    const refresh_token = this.jwtService.sign(payload, { expiresIn: '20m' });
+    return { access_token, refresh_token };
   }
 
   async register(
