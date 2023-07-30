@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Order, OrderDocument } from '../../mongo/schema/order.schema';
@@ -12,18 +11,33 @@ export class OrderService {
   ) {}
 
   async findAll(
-    paginationQuery: PaginationQueryDto,
+    paginationQuery: PaginationQueryDto & {
+      sort?: 'asc' | 'desc';
+      filter?: string;
+    },
   ): Promise<{ orders: Order[]; totalOrders: number }> {
-    const { limit = 25, page = 1, sort } = paginationQuery;
+    const { limit = 25, page = 1, sort, filter } = paginationQuery;
     const offset = (page - 1) * limit;
 
-    const query = this.orderModel.find().skip(offset).limit(limit);
+    let query = this.orderModel.find();
 
     if (sort === 'asc') {
-      query.sort({ surname: 1 });
+      query = query.sort({ surname: 1 });
     } else if (sort === 'desc') {
-      query.sort({ surname: -1 });
+      query = query.sort({ surname: -1 });
     }
+
+    // Apply filtering if provided
+    if (filter) {
+      query = query.find({
+        $or: [
+          { firstName: { $regex: filter, $options: 'i' } },
+          { lastName: { $regex: filter, $options: 'i' } },
+        ],
+      });
+    }
+
+    query = query.skip(offset).limit(limit);
 
     const [orders, totalOrders] = await Promise.all([
       query.exec(),
