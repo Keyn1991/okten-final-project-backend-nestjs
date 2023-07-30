@@ -49,6 +49,9 @@ export class User {
 
   @Prop()
   password: string;
+
+  @Prop([{ text: String, author: String, date: Date }]) // Використайте масив об'єктів для коментарів
+  comment: { text: string; author: string; date: Date }[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

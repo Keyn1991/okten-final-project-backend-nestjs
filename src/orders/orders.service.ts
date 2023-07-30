@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Order, OrderDocument } from '../../mongo/schema/order.schema';
@@ -27,12 +27,11 @@ export class OrderService {
       query = query.sort({ surname: -1 });
     }
 
-    // Apply filtering if provided
     if (filter) {
       query = query.find({
         $or: [
-          { firstName: { $regex: filter, $options: 'i' } },
-          { lastName: { $regex: filter, $options: 'i' } },
+          { name: { $regex: filter, $options: 'i' } },
+          { surname: { $regex: filter, $options: 'i' } },
         ],
       });
     }
@@ -45,5 +44,37 @@ export class OrderService {
     ]);
 
     return { orders, totalOrders };
+  }
+
+  async findById(id: string): Promise<Order> {
+    const order = await this.orderModel.findById(id).exec();
+    if (!order) {
+      // Якщо замовлення не знайдено, викидаємо помилку NotFoundException
+      throw new NotFoundException(`Замовлення з id ${id} не знайдено`);
+    }
+    return order;
+  }
+
+  async create(orderData: Partial<Order>): Promise<Order> {
+    const order = new this.orderModel(orderData);
+    return order.save();
+  }
+  async addComment(
+    orderId: string,
+    commentText: string,
+    commentAuthor: string,
+  ): Promise<Order> {
+    const existingOrder = await this.orderModel.findById(orderId).exec();
+    if (!existingOrder) {
+      throw new NotFoundException(`Замовлення з id ${orderId} не знайдено`);
+    }
+
+    existingOrder.comment.push({
+      text: commentText,
+      author: commentAuthor,
+      date: new Date(),
+    });
+
+    return existingOrder.save();
   }
 }

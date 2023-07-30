@@ -43,6 +43,9 @@ export class Order {
 
   @Prop()
   created_at: Date;
+
+  @Prop({ type: [{ text: String, author: String, date: Date }] }) // Поле коментарів
+  comment: { text: string; author: string; date: Date }[];
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

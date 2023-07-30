@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { OrderService } from './orders.service';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { Order } from '../../mongo/schema/order.schema';
@@ -10,8 +10,8 @@ export class OrderController {
   @Get()
   async findAll(
     @Query() paginationQuery: PaginationQueryDto,
-    @Query('sort') sort?: 'asc' | 'desc', // Update the type of 'sort'
-    @Query('filter') filter?: string, // Add a filter parameter for filtering
+    @Query('sort') sort?: 'asc' | 'desc',
+    @Query('filter') filter?: string,
   ): Promise<{ orders: Order[]; totalOrders: number; totalPages: number }> {
     const { limit = 25, page = 1 } = paginationQuery;
     const query: PaginationQueryDto & {
@@ -20,11 +20,27 @@ export class OrderController {
     } = {
       ...paginationQuery,
       sort: sort === 'asc' || sort === 'desc' ? sort : undefined,
-      filter, // Include the filter in the query object
+      filter,
     };
 
     const { orders, totalOrders } = await this.orderService.findAll(query);
     const totalPages = Math.ceil(totalOrders / limit);
     return { orders, totalOrders, totalPages };
+  }
+  @Post()
+  async create(@Body() orderData: Partial<Order>): Promise<Order> {
+    return this.orderService.create(orderData);
+  }
+
+  @Post(':id/comment')
+  async addComment(
+    @Param('id') id: string,
+    @Body() commentData: { text: string; author: string },
+  ): Promise<Order> {
+    return this.orderService.addComment(
+      id,
+      commentData.text,
+      commentData.author,
+    );
   }
 }
