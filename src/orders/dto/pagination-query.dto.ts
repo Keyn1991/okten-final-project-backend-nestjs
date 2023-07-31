@@ -1,7 +1,6 @@
-import { IsInt, IsNumber, IsOptional, Min } from 'class-validator';
+import { IsNumber, IsOptional, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Order } from '../../../mongo/schema/order.schema';
-import { Prop } from '@nestjs/mongoose';
 
 export class PaginationQueryDto {
   @ApiProperty({

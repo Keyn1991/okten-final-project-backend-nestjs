@@ -3,11 +3,12 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { User } from '../../mongo/schema/user.schema';
+
 import { UserService } from '../users/user.service';
 import { CreateUserDto } from '../users/dto/user.dto';
-import { User } from '../../mongo/schema/user.schema';
-import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -70,5 +71,14 @@ export class AuthService {
     const access_token = this.jwtService.sign(payload);
 
     return { access_token };
+  }
+  async hasValidToken(authToken: string): Promise<boolean> {
+    try {
+      const payload = this.jwtService.verify(authToken);
+      const user = await this.userService.findById(payload.sub);
+      return !!user;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }

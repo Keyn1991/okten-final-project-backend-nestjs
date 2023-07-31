@@ -1,19 +1,18 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
-
-import { AuthService } from './auth.service';
-import { UserService } from '../users/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { RegisterDto } from './dto/register.dto';
+
 import { LoginDto } from './dto';
-import { AccessTokenDto } from './dto/AccessTokenDto';
+import { AuthService } from './auth.service';
+import { UserService } from '../users/user.service';
 
 @ApiTags('Authentication')
 @Controller('')
@@ -65,4 +64,23 @@ export class AuthController {
   //   const access_token = this.jwtService.sign(payload);
   //   return { access_token };
   // }
+  @Get('checkLoggedInStatus')
+  async checkLoggedInStatus(@Res() res: Response): Promise<void> {
+    const authToken = res.getHeader('Authorization') as string;
+    if (!authToken || typeof authToken !== 'string') {
+      throw new UnauthorizedException('No token provided');
+    }
+
+    const tokenParts = authToken.split(' ');
+    if (tokenParts.length !== 2 || tokenParts[0].toLowerCase() !== 'bearer') {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    try {
+      const hasValidToken = await this.authService.hasValidToken(tokenParts[1]);
+      res.send({ loggedIn: hasValidToken });
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
 }

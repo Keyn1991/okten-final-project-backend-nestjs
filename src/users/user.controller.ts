@@ -7,11 +7,11 @@ import {
   Body,
   Param,
 } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { User } from '../../mongo/schema/user.schema';
 
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
-import { User } from '../../mongo/schema/user.schema';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Users')
 @Controller('users')
