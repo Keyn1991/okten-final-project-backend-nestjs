@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import { Order, OrderDocument } from '../../mongo/schema/order.schema';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
 
-
 @Injectable()
 export class OrderService {
   constructor(

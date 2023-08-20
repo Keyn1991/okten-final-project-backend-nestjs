@@ -78,7 +78,10 @@ export class AuthController {
 
     try {
       const hasValidToken = await this.authService.hasValidToken(tokenParts[1]);
-      res.send({ loggedIn: hasValidToken });
+      if (!hasValidToken) {
+        throw new UnauthorizedException('Invalid token');
+      }
+      res.send({ loggedIn: true });
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
