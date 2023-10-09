@@ -13,15 +13,18 @@ export class OrderController {
     @Query() paginationQuery: PaginationQueryDto,
     @Query('sort') sort?: 'asc' | 'desc',
     @Query('filter') filter?: string,
+    @Query('sortBy') sortBy?: string,
   ): Promise<{ orders: Order[]; totalOrders: number; totalPages: number }> {
     const { limit = 25, page = 1 } = paginationQuery;
     const query: PaginationQueryDto & {
       sort?: 'asc' | 'desc';
       filter?: string;
+      sortBy?: string;
     } = {
       ...paginationQuery,
       sort: sort === 'asc' || sort === 'desc' ? sort : undefined,
       filter,
+      sortBy,
     };
 
     const { orders, totalOrders } = await this.orderService.findAll(query);

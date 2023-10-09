@@ -14,17 +14,26 @@ export class OrderService {
     paginationQuery: PaginationQueryDto & {
       sort?: 'asc' | 'desc';
       filter?: string;
+      sortBy?: string;
     },
   ): Promise<{ orders: Order[]; totalOrders: number }> {
-    const { limit = 25, page = 1, sort, filter } = paginationQuery;
+    const { limit = 25, page = 1, sort, filter, sortBy } = paginationQuery;
     const offset = (page - 1) * limit;
 
     let query = this.orderModel.find();
 
     if (sort === 'asc') {
-      query = query.sort({ surname: 1 });
+      if (sortBy) {
+        query = query.sort({ [sortBy]: 1 });
+      } else {
+        query = query.sort({ surname: 1 });
+      }
     } else if (sort === 'desc') {
-      query = query.sort({ surname: -1 });
+      if (sortBy) {
+        query = query.sort({ [sortBy]: -1 });
+      } else {
+        query = query.sort({ surname: -1 });
+      }
     }
 
     if (filter) {
@@ -49,7 +58,6 @@ export class OrderService {
   async findById(id: string): Promise<Order> {
     const order = await this.orderModel.findById(id).exec();
     if (!order) {
-      // Якщо замовлення не знайдено, викидаємо помилку NotFoundException
       throw new NotFoundException(`Замовлення з id ${id} не знайдено`);
     }
     return order;
