@@ -13,7 +13,7 @@ export class OrderService {
   async findAll(
     paginationQuery: PaginationQueryDto & {
       sort?: 'asc' | 'desc';
-      filter?: string;
+      filter?: string | number;
       sortBy?: string;
     },
   ): Promise<{ orders: Order[]; totalOrders: number }> {

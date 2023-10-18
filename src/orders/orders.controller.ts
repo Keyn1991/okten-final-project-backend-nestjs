@@ -18,7 +18,7 @@ export class OrderController {
     const { limit = 25, page = 1 } = paginationQuery;
     const query: PaginationQueryDto & {
       sort?: 'asc' | 'desc';
-      filter?: string;
+      filter?: string | number;
       sortBy?: string;
     } = {
       ...paginationQuery,

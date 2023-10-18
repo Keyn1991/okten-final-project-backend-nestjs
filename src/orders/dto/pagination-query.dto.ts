@@ -21,7 +21,7 @@ export class PaginationQueryDto {
   })
   @IsOptional()
   page: number;
-
+  filter?: string | number;
   sort?: 'asc' | 'desc';
 
   @ApiProperty({
